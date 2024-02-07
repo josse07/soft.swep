@@ -1,76 +1,58 @@
+class AbortTransaction(Exception):
+    pass
 class Account():
     def __init__(self, name, balance, password) -> None:
         self.name = name
-        self.balance = int(balance)
+        self.balance = self.validateAmount(balance)
         self.password = password
+    def validateAmount(self, amount):
+        try:
+            amount = int(amount)
+        except ValueError:
+            raise AbortTransaction('Amount must be an integer')
+        if amount <= 0:
+            raise AbortTransaction('Amount must be positive')
+        return amount
+    def checkPasswordMatch(self, password):
+        if password != self.password:
+            raise AbortTransaction('incorrect password for this amount')
         
-    def deposit(self, amountToDeposit, password=input('')):
-        if password != self.password:
-            trails = 0
-            limit = 3
-            while trails < limit:
-                print('sorry, incorrect password')
-                trial = input('')
-                trails += 1
-                if trial == self.password:
-                    print('you are correct')
-                    break
-            else:
-                print('!!! sorry, number of trials exceeded. Please try again later')
-            return None
-        if amountToDeposit < 0:
-            print('You cannot deposit a negative amount')
-            return None
+        
+    def deposit(self, amountToDeposit, password):
+        amountToDeposit = self.validateAmount(amountToDeposit)
         self.balance = self.balance + amountToDeposit
-        return self.balance
+        return self.balance 
     
-    def withdraw(self, amountToWithdraw, password=input('')):
-        if password != self.password:
-            trails = 0
-            limit = 3
-            while trails < limit:
-                print('sorry, incorrect password')
-                trial = input('')
-                trails += 1
-                if trial == self.password:
-                    print('you are correct')
-                    break
-            else:
-                print('!!! sorry, number of trials exceeded. Please try again later')
-            return None
-        if amountToWithdraw < 0:
-            print('You cannot withdraw a negative amount')
-            return None
+    def withdraw(self, amountToWithdraw, password):
+        amountToWithdraw = self.validateAmount(amountToWithdraw)
         if amountToWithdraw > self.balance:
-            print('You cannot wthdraw more than you have in your account')
-            return None
+            raise AbortTransaction('you cannot withdraw more than you have in your account')
         self.balance = self.balance - amountToWithdraw
         return self.balance
     
-    def getBalance(self, password=input('')):
-        if password != self.password:
-            trails = 0
-            limit = 3
-            while trails < limit:
-                print('sorry, incorrect password')
-                trial = input('')
-                trails += 1
-                if trial == self.password:
-                    print('you are correct')
-                    break
-            else:
-                print('!!! sorry, number of trials exceeded. Please try again later')
-            return None
-        return self.balance
-    
+    def getBalance(self, password_check):
+        if self.password == password_check:
+            return self.balance
+        
+       
     def showInfo(self):
         print('      Name:', self.name)
         print('      Balancce:', self.balance)
         print('      password:', self.password)
-        print()
+        
+        
+class NewAccountDetails(Account):
+    def __init__(self, name, balance, password, address, telephone_number, date_of_birth) -> None:
+        super().__init__(name, balance, password)
+        self.address = address
+        self.telephone_number = telephone_number
+        self.date_of_birth = date_of_birth
+    def showInfo(self):
+        print('      Name:', self.name)
+        print('      Balancce:', self.balance)
+        print('      password:', self.password)
+        print('      address:', self.address)
+        print('      telephoneNumber:', self.telephone_number)
+        print('      dateOfBirth:', self.date_of_birth)
         
 
-oAccount = Account('Ayoola Balogun', 100000, 'splash')
-newBalance = oAccount.deposit(20000)
-#balance = oAccount.getBalance()
-oAccount.showInfo()
